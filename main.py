@@ -1,6 +1,7 @@
 from Image import *
-from vertex import *
-from rasterizaton import *
+from component import *
+from device import *
+
 if __name__=="__main__":
     vb=[vertex([0,1,0],[255,0,0]), #0
         vertex([1,1,0],[0,255,0]),#1

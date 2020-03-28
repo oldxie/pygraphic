@@ -19,14 +19,23 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="device.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="geometry.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Image.py" />
     <Compile Include="main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="pixel.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="rasterizaton.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="vertex.py">
+    <Compile Include="component.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

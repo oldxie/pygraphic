@@ -1,46 +1,11 @@
-from Image import *
-from vertex import *
+
+from component import *
 from numpy import *
 from random import randint
 import time
-# programable stage
-class geometryshader():
-    def __init__(self):
-        pass
-    def setlootat(self,position):
-        self.at=array(position)
-    def setCamera(self,position):
-        self.camera=array(position)
 
-    def setnear(self,distance):
-        self.near=distance
-        #fix me
+        
 
-    def maketranview(self):
-        zaxis = (self.at - self.camera)/np.linalg.norm(self.at - self.camera)
-        xaxis = cross(array([0,1,0]), zaxis)
-        yaxis = cross(zaxis, xaxis)
-        self.viewmatrix=array([xaxis,yaxis,zaxis]).T
-    def run(self,vertexbuffer):
-        self.maketranview()
-        vsoutbuf=[]
-        
-        for vsvertex in vertexbuffer:
-            pos=self.viewmatrix.dot(vsvertex.pos)
-            color=vsvertex.color
-            vsoutbuf.append(vertex(pos,color))
-        return vsoutbuf
-        
-class pixelshader():
-    def __init__(self):
-        pass
-    def run(self,pixelin):
-        colorbuf=[]
-        depthbuf=[]
-        for pix in pixelin:
-            colorbuf.append(pix[1])
-            depthbuf.append(pix[0][2])
-        return colorbuf,depthbuf
 
 # fixed stage
 class rasterizor():
@@ -100,16 +65,19 @@ class rasterizor():
         z0=(array([x1,y1,z1])-array([x0,y0,0])).dot(n/n[2])
         return z0
     def scan_conversion(self,triangle,pixbuf,mode,test_color=None):
+        xlist=[triangle.vertexlist[0].pos[0],triangle.vertexlist[1].pos[0],triangle.vertexlist[2].pos[0]]
+        ylist=[triangle.vertexlist[0].pos[1],triangle.vertexlist[1].pos[1],triangle.vertexlist[2].pos[1]]
+
         linelist=[[triangle.vertexlist[0],triangle.vertexlist[1]],[triangle.vertexlist[1],triangle.vertexlist[2]],[triangle.vertexlist[2],triangle.vertexlist[0]]]      
         randomcolor=[randint(0,255),randint(0,255),randint(0,255)]
-        
         for index in range(0,self.w*self.h): #loop all pixels
             x0=self.sol[index][0]
             y0=self.sol[index][1]
+            if min(xlist)-self.pixelsize > x0 or max(xlist)+self.pixelsize < x0 or min(ylist)-self.pixelsize > y0 or max(ylist)+self.pixelsize < y0:
+                continue
             mask=[False,False,False]
             is_hit=False
             for i,line in enumerate(linelist): #loop 3 times
-                #edage function
                 x1=line[0].pos[0]
                 x2=line[1].pos[0]
                 y1=line[0].pos[1]
@@ -151,84 +119,4 @@ class rasterizor():
         return pixbuf
 
         
-class context():
-    def __init__(self,size,viewport,center=[0,0]):
-        self.size=size
-        self.vp=viewport
-        self.mode="default"
-        self.blendmode="Default"
-        self.geometrysh=geometryshader()
-        self.rasterzior=rasterizor(size[0],size[1],viewport[0],viewport[1],center)
-        self.pixelsh=pixelshader()
-        self.vb=None
-        self.ib=None
-        self.cb=array([[72,117,135]]*self.size[0]*self.size[1]) #default backend
-        self.backcolor=[72,117,135]
-        self.imag = image(self.size[0],self.size[1],self.cb)
-        self.drawnum=0
-    def setvertex(self,vertexbuffer):
-        self.vb=vertexbuffer
-    def setindex(self,instancebuffer):
-        self.ib=instancebuffer
-    def creatwindow(self,rgb):
-        self.cb = [rgb]*self.size[0]*self.size[1]
-    def set_farest_plane(self,far):
-        self.far = far
-        self.db = array([far]*self.size[0]*self.size[1])
-    def setblendmode(self,mode):
-        self.blendmode=mode
-    def makescence(self,vsout):
-        scene=[]
-        if self.ib:
-            for i in range(0,len(self.ib),3): 
-                v0=vsout[self.ib[i]]
-                v1=vsout[self.ib[i+1]]
-                v2=vsout[self.ib[i+2]]
-                tri=triangle([v0,v1,v2])
-                scene.append(tri) 
-        else:
-            for i in range(0,len(vsout),3): 
-                tri=triangle(vsout[i:i+3])
-                scene.append(tri) 
-        return scene
-    def render(self,cb,db):
-        if self.blendmode=="Default":
-            db_mask=db<self.db #depth test
-            self.db = (1-db_mask)*self.db+db_mask*db 
-            cb_mask = expand_dims(db_mask,1).repeat(3,axis=1)
-            self.cb = ((1-cb_mask)*self.cb+cb_mask*cb).astype(int)
-        elif self.blendmode=="Additive":
-            self.cb = ((cb+self.cb)/2).astype(int) 
-            return self.cb
-    def run(self):
- 
-        if self.mode == "default":
-        # default pipeline
-            TIME={}    
-            start = time.clock()
-            outvs=self.geometrysh.run(self.vb)
-            TIME['geometry_stage'] = time.clock()-start
-            scence=self.makescence(outvs)
-            start = time.clock()
-            pixelin=self.rasterzior.run(scence,self.backcolor,self.far,self.mode)
-            TIME['raster_stage'] = time.clock()-start
-            start = time.clock()
-            cb,db= self.pixelsh.run(pixelin) 
-            TIME['pixel_stage'] = time.clock()-start
-            start = time.clock()
-            self.render(cb,db)
-            TIME['render_stage'] = time.clock()-start
-            self.imag.loaddata(self.cb)
-            self.drawnum +=1
-            self.imag.anylyze(TIME)
 
-        elif self.mode == "line":
-            outvs=self.geometrysh.run(self.vb)
-            scence=self.makescence(outvs)
-            pixelin=self.rasterzior.run(scence,self.backcolor,self.far,self.mode)
-            self.cb= self.pixelsh.run(pixelin) 
-            self.imag = image(self.size[0],self.size[1],self.cb)
-            self.imag.anylyze(TIME)
-
-    def show(self):
-        self.imag.print(self.drawnum)

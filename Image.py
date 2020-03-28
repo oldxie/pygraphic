@@ -34,19 +34,19 @@ class image:
         self.category=list(l.keys())
         result={}
         value = np.array(list(self.debug.values()))
-        value_p = value/value.sum()*100
-        beauty  = value/value.sum()*100
+        value_p = value#/value.sum()*100
+        beauty  = value*100#/value.sum()
         while beauty.min()<10.0:
             for i,num in enumerate(list(beauty)):
                 if num<10.0:
                     beauty += [10.0,10.0,10.0,10.0]
-            beauty = beauty/beauty.sum()*100
+            #beauty = beauty*100#/beauty.sum()
         
         self.result.append(value_p)
         self.result_beauty.append(beauty)
 
     def survey(self,G,draw_num):
-        labels = range(draw_num)
+        labels = ['draw {num}'.format(num=i) for i in range(draw_num)]
         data=np.array(self.result)
         beauty_result=np.array(self.result_beauty)
         data_cum =beauty_result.cumsum(axis=1)
@@ -56,7 +56,12 @@ class image:
         ax = plt.subplot(G[25:,:])
         ax.invert_yaxis()
         ax.xaxis.set_visible(False)
-        ax.set_xlim(0, np.sum(data,axis=1).max())
+        limit=np.sum(beauty_result,axis=1).max()
+        ax.set_xlim(0, limit)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
 
         for i, (colname, color) in enumerate(zip(self.category, category_colors)):
             rel_val = data[:,i]
@@ -66,11 +71,17 @@ class image:
             ax.barh(labels, widths, left=starts, height=0.5,
                     label=colname, color=color)
             xcenters = starts + widths / 2
-
             r, g, b, _ = color
             text_color = 'white' if r * g * b < 0.5 else 'darkgrey'
-            for y, (x, c) in enumerate(zip(xcenters, rel_val)):
-                ax.text(x, y, '%.2f'%c+'%', ha='center', va='center',
+            for y, (x, c, w) in enumerate(zip(xcenters, rel_val,widths)):
+                rate=w/limit
+                if rate<0.05:
+                    p=0
+                elif rate>0.05 and rate<0.1:
+                    p='%.1f'%c
+                else:
+                    p='%.2f'%c
+                ax.text(x, y,p, ha='center', va='center',
                         color=text_color,fontsize=8)
         ax.legend(ncol=len(self.category), bbox_to_anchor=(0, 1),
                   loc='lower left', fontsize='x-small')
