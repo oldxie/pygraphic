@@ -17,6 +17,8 @@ class rasterizor():
         self.orix=center[0]-x/2
         self.oriy=center[1]-y/2
         self.createsolution(self.w,self.h,self.x,self.y,self.orix,self.oriy)
+        #self.lightmode="plane"
+        self.rastmode="default"
         pass
     def createsolution(self,w,h,x,y,orix,oriy):  
         self.pixelsize=x/w
@@ -64,7 +66,7 @@ class rasterizor():
         z1=linelist[0][0].pos[1]
         z0=(array([x1,y1,z1])-array([x0,y0,0])).dot(n/n[2])
         return z0
-    def scan_conversion(self,triangle,pixbuf,mode,test_color=None):
+    def scan_conversion(self,triangle,pixbuf,test_color=None):
         xlist=[triangle.vertexlist[0].pos[0],triangle.vertexlist[1].pos[0],triangle.vertexlist[2].pos[0]]
         ylist=[triangle.vertexlist[0].pos[1],triangle.vertexlist[1].pos[1],triangle.vertexlist[2].pos[1]]
 
@@ -88,7 +90,7 @@ class rasterizor():
                 mask[i]=(exp<0)
                 if sum(mask)==3:
                     is_hit = True
-                if mode == "default":
+                if self.rastmode == "default":
                     if exp<0:
                         break
                     if i==2:
@@ -97,7 +99,7 @@ class rasterizor():
                             pixbuf[index][0][2]=z0 # refresh z-buffer
                             pixbuf[index][1]=self.Barycentric(index,linelist)
                             #pixbuf[index][1]=array(test_color)
-                elif mode == "line":       
+                elif self.rastmode == "line":       
                     if exp < self.pixelsize and exp > -self.pixelsize: 
                         if min(x1,x2)-self.pixelsize <= x0 and max(x1,x2)+self.pixelsize>=x0 and min(y1,y2)-self.pixelsize<=y0 and max(y1,y2)+self.pixelsize>=y0 :
                             pixbuf[index][1] = array([255,255,255])
@@ -107,7 +109,7 @@ class rasterizor():
             
         return pixbuf
 
-    def run(self,scene,backcolor,depth,mode="default"):
+    def run(self,scene,backcolor,depth):
         #pixbuf=[[[0,0,depth],backcolor]]*self.w*self.h
         pixbuf=[]
         for i in range(self.w*self.h):
@@ -115,7 +117,7 @@ class rasterizor():
             pixbuf.append(pix)
         #colortest=[[0,0,0],[255,0,0]]
         for i,triangle in enumerate(scene):
-                pixbuf = self.scan_conversion(triangle,pixbuf,mode)
+                pixbuf = self.scan_conversion(triangle,pixbuf)
         return pixbuf
 
         

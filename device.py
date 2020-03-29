@@ -18,6 +18,7 @@ class context():
         self.backcolor=[72,117,135]
         self.imag = image(self.size[0],self.size[1],self.cb)
         self.drawnum=0
+        self.lightlist=None
     def setvertex(self,vertexbuffer):
         self.vb=vertexbuffer
     def setindex(self,instancebuffer):
@@ -27,8 +28,14 @@ class context():
     def set_farest_plane(self,far):
         self.far = far
         self.db = array([far]*self.size[0]*self.size[1])
+    def set_mode(self,mode):
+        self.mode=mode
+        self.rasterzior.rastmode=mode
     def setblendmode(self,mode):
         self.blendmode=mode
+    def setlight(self,lightlist):
+        self.lightlist=lightlist
+        self.geometrysh.lightlist=lightlist
     def makescence(self,vsout):
         scene=[]
         if self.ib:
@@ -62,7 +69,7 @@ class context():
             TIME['geometry_stage'] = time.clock()-start
             scence=self.makescence(outvs)
             start = time.clock()
-            pixelin=self.rasterzior.run(scence,self.backcolor,self.far,self.mode)
+            pixelin=self.rasterzior.run(scence,self.backcolor,self.far)
             TIME['raster_stage'] = time.clock()-start
             start = time.clock()
             cb,db= self.pixelsh.run(pixelin) 
