@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "python-rastzier", "python-rastzier.pyproj", "{3C3D615C-8572-4512-AAEB-89A1633872BA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F7B5FF4A-6824-444B-8F68-80E7EFB27F2E}"
-	ProjectSection(SolutionItems) = preProject
-		sample\sample1.py = sample\sample1.py
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

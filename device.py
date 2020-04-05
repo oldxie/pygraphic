@@ -11,6 +11,8 @@ class context():
         self.blendmode="Default"
         self.geometrysh=geometryshader()
         self.rasterzior=rasterizor(size[0],size[1],viewport[0],viewport[1],center)
+        self.w=size[0]
+        self.h=size[1]
         self.pixelsh=pixelshader()
         self.vb=None
         self.ib=None
@@ -19,12 +21,14 @@ class context():
         self.imag = image(self.size[0],self.size[1],self.cb)
         self.drawnum=0
         self.lightlist=None
+        self.layout=None
     def setvertex(self,vertexbuffer):
         self.vb=vertexbuffer
     def setindex(self,instancebuffer):
         self.ib=instancebuffer
-    def creatwindow(self,rgb):
-        self.cb = [rgb]*self.size[0]*self.size[1]
+    def cleanwindow(self):
+        self.cb =array([self.backcolor]*self.size[0]*self.size[1])
+        self.db = array([self.far]*self.size[0]*self.size[1])
     def set_farest_plane(self,far):
         self.far = far
         self.db = array([far]*self.size[0]*self.size[1])
@@ -36,19 +40,45 @@ class context():
     def setlight(self,lightlist):
         self.lightlist=lightlist
         self.geometrysh.lightlist=lightlist
+        
+    def inputlayout(self,vert=False,color=False,normal=False,uv=False):
+        self.layout=[vert,color,normal,uv]
+        self.geometrysh.layout=[vert,color,normal,uv]
+
     def makescence(self,vsout):
         scene=[]
+        pixelsize=self.rasterzior.pixelsize
+        orix=self.rasterzior.orix
+        oriy=self.rasterzior.y+self.rasterzior.oriy
+        idxarray=array(range(self.w*self.h))
+        idxarray.shape=(self.w,self.h)
+        #sol=self.rasterzior.sol
         if self.ib:
+            total=int(len(self.ib)/3)
+            d=0
             for i in range(0,len(self.ib),3): 
+                d=d+1
                 v0=vsout[self.ib[i]]
                 v1=vsout[self.ib[i+1]]
                 v2=vsout[self.ib[i+2]]
-                tri=triangle([v0,v1,v2])
-                scene.append(tri) 
+                tri=triangle([v0,v1,v2],self.w,self.h,orix,oriy,pixelsize,idxarray)
+                if tri.culltest:
+                    scene.append(tri) 
+                    print("\r build {i}rd triangle ,total :{total}  ".format(i=d,total=total),end='')
+                else:
+                    print("\r cull {i}rd triangle ,total :{total}   ".format(i=d,total=total),end='')
         else:
+            total=int(len(vsout)/3)
+            d=0
             for i in range(0,len(vsout),3): 
-                tri=triangle(vsout[i:i+3])
-                scene.append(tri) 
+                d=d+1
+                tri=triangle(vsout[i:i+3],self.w,self.h,orix,oriy,pixelsize,idxarray)
+                if tri.culltest:
+                    scene.append(tri) 
+                    print("\r build {i}rd triangle ,total :{total}  ".format(i=d,total=total),end='')
+                else:
+                    print("\r cull {i}rd triangle ,total :{total}   ".format(i=d,total=total),end='')      
+        print('')
         return scene
     def render(self,cb,db):
         if self.blendmode=="Default":
@@ -61,13 +91,17 @@ class context():
             return self.cb
     def run(self):
  
-        if self.mode == "default":
+        #if self.mode == "default":
         # default pipeline
+            print ("begin draw{num}".format(num=self.drawnum))
             TIME={}    
             start = time.clock()
-            outvs=self.geometrysh.run(self.vb)
+            outvs,lightlist=self.geometrysh.run(self.vb)
+            #self.pixelsh.lightlist=lightlist
             TIME['geometry_stage'] = time.clock()-start
+            start = time.clock()
             scence=self.makescence(outvs)
+            TIME['build_scene'] = time.clock()-start
             start = time.clock()
             pixelin=self.rasterzior.run(scence,self.backcolor,self.far)
             TIME['raster_stage'] = time.clock()-start
@@ -77,17 +111,23 @@ class context():
             start = time.clock()
             self.render(cb,db)
             TIME['render_stage'] = time.clock()-start
+            self.imag.anylyze(TIME)
             self.imag.loaddata(self.cb)
             self.drawnum +=1
-            self.imag.anylyze(TIME)
-
-        elif self.mode == "line":
-            outvs=self.geometrysh.run(self.vb)
-            scence=self.makescence(outvs)
-            pixelin=self.rasterzior.run(scence,self.backcolor,self.far,self.mode)
-            self.cb= self.pixelsh.run(pixelin) 
-            self.imag = image(self.size[0],self.size[1],self.cb)
-            self.imag.anylyze(TIME)
-
+            return self.cb
     def show(self):
-        self.imag.print(self.drawnum)
+        self.imag.print(self.drawnum)              
+    def runani(self):
+        i=0
+        while i<11:
+            self.cleanwindow()
+            self.geometrysh.lightlist[0].direct=self.geometrysh.lightlist[0].direct+array([1,0,0])
+            self.run()
+            self.imag.loaddata(self.cb)
+            i+=1
+    def showani(self):
+        self.imag.printaction(self.drawnum)
+    def showtk(self):
+        self.imag.printtk(self.drawnum)
+
+
