@@ -36,10 +36,10 @@ class image:
         value = np.array(list(self.debug.values()))
         value_p = value#/value.sum()*100
         beauty  = value*100#/value.sum()
-        while beauty.min()<10.0:
-            for i,num in enumerate(list(beauty)):
-                if num<10.0:
-                    beauty += [10.0,10.0,10.0,10.0]
+        #while beauty.min()<10.0:
+        #    for i,num in enumerate(list(beauty)):
+        #        if num<10.0:
+        #            beauty += [10.0,10.0,10.0,10.0]
             #beauty = beauty*100#/beauty.sum()
         
         self.result.append(value_p)
