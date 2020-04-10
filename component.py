@@ -63,6 +63,7 @@ class triangle():
             if self.culltest(array(pos)):
                 self.makeBVH(array(pos),w,h,orix,oriy,pixelsize,idxarray)
                 self.culltest=True
+<<<<<<< HEAD
                 x0=pos[0][0]
                 y0=pos[0][1]
                 
@@ -73,6 +74,8 @@ class triangle():
                 y2=pos[2][1]
                 
                 self.s = (x0*y1+x1*y2+x2*y0-x0*y2-x1*y0-x2*y1)
+=======
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
             else:
                 self.culltest=False
     def culltest(self,pos):
@@ -86,10 +89,17 @@ class triangle():
         u=pos[:,1].max()  
         d=pos[:,1].min()
         
+<<<<<<< HEAD
         idx_row_start= int((l-orix)/pixelsize)-1 if l>orix else 0
         idx_row_stop = int((r-orix)/pixelsize)+1 if r>orix else 0
         idx_col_start= int((oriy-u)/pixelsize)-1 if u<oriy else 0
         idx_col_stop= int((oriy-d)/pixelsize)+1 if d<oriy else 0
+=======
+        idx_row_start= int((l-orix)/pixelsize)-1
+        idx_row_stop = int((r-orix)/pixelsize)+2
+        idx_col_start= int((oriy-u)/pixelsize)-1
+        idx_col_stop= int((oriy-d)/pixelsize)+2
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
         bvh=idxarray[idx_col_start:idx_col_stop,idx_row_start:idx_row_stop]
         #bvh_sol_1=sol[bvh[0]]
         #bvh_sol_2=sol[bvh[-1]]

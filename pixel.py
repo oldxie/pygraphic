@@ -3,7 +3,10 @@ from numpy import *
 class pixelshader():
     def __init__(self):
         self.lightlist=None
+<<<<<<< HEAD
         self.texture=False
+=======
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
     def lightfunction(self):
         for light in self.lightlist[0:1]:
             direct=self.pos - light.src
@@ -20,7 +23,10 @@ class pixelshader():
     def setTex(self,tex):
         self.tex=tex.astype('float')
         self.uv=array([tex.shape[0],tex.shape[1],0])
+<<<<<<< HEAD
         self.texture=True
+=======
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
     def samplefromtexture(self):
         for i,color in enumerate(self.colorbuf):
             if self.uvbuf[i][0] >0:
@@ -33,9 +39,15 @@ class pixelshader():
         self.pos=pixelin[:,0]
         self.depthbuf=self.pos[:,2]
         #self.normalbuf=pixelin[:,2]
+<<<<<<< HEAD
         if self.texture:
             uvbuf=(pixelin[:,3]*self.uv)
             self.uvbuf=(pixelin[:,3]*self.uv).astype('int')
             self.samplefromtexture()
+=======
+        uvbuf=(pixelin[:,3]*self.uv)
+        self.uvbuf=(pixelin[:,3]*self.uv).astype('int')
+        self.samplefromtexture()
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
         #self.lightfunction()
         return self.colorbuf,self.depthbuf

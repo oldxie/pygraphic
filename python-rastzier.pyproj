@@ -38,6 +38,7 @@
     <Compile Include="component.py">
       <SubType>Code</SubType>
     </Compile>
+<<<<<<< HEAD
     <Compile Include="sample\simple.py">
       <SubType>Code</SubType>
     </Compile>
@@ -45,6 +46,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="sample\__init__.py">
+=======
+    <Compile Include="sample\1.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="sample\2.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="sample\cube_tex.py">
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

@@ -64,9 +64,15 @@ class context():
                 tri=triangle([v0,v1,v2],self.w,self.h,orix,oriy,pixelsize,idxarray)
                 if tri.culltest:
                     scene.append(tri) 
+<<<<<<< HEAD
                     print("\r build {i}rd triangle ,total :{total}  ".format(i=d,total=total),end='')
                 else:
                     print("\r cull {i}rd triangle ,total :{total}   ".format(i=d,total=total),end='')
+=======
+                    print("build {i}rd triangle ,total :{total}".format(i=d,total=total))
+                else:
+                    print("cull {i}rd triangle ,total :{total}".format(i=d,total=total))
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
         else:
             total=int(len(vsout)/3)
             d=0
@@ -75,10 +81,16 @@ class context():
                 tri=triangle(vsout[i:i+3],self.w,self.h,orix,oriy,pixelsize,idxarray)
                 if tri.culltest:
                     scene.append(tri) 
+<<<<<<< HEAD
                     print("\r build {i}rd triangle ,total :{total}  ".format(i=d,total=total),end='')
                 else:
                     print("\r cull {i}rd triangle ,total :{total}   ".format(i=d,total=total),end='')      
         print('')
+=======
+                    print("build {i}rd triangle ,total :{total}".format(i=d,total=total))
+                else:
+                    print("cull {i}rd triangle ,total :{total}".format(i=d,total=total))        
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
         return scene
     def render(self,cb,db):
         if self.blendmode=="Default":
@@ -101,7 +113,11 @@ class context():
             TIME['geometry_stage'] = time.clock()-start
             start = time.clock()
             scence=self.makescence(outvs)
+<<<<<<< HEAD
             TIME['build_scene'] = time.clock()-start
+=======
+            TIME['make_sence'] = time.clock()-start
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
             start = time.clock()
             pixelin=self.rasterzior.run(scence,self.backcolor,self.far)
             TIME['raster_stage'] = time.clock()-start
@@ -130,4 +146,8 @@ class context():
     def showtk(self):
         self.imag.printtk(self.drawnum)
 
+<<<<<<< HEAD
+=======
+        
+>>>>>>> 21f6ded06283429d1a8f036e09cd8856dfa5d69b
 
